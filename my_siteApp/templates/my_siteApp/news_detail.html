@@ -1,0 +1,38 @@
+{% extends 'my_siteApp/base.html' %}
+{% load static %}
+
+{% block title %}
+{{ title }} - RomanovPaint
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Главная</a></li>
+                <li class="breadcrumb-item active">Новость {{ news_id }}</li>
+            </ol>
+        </nav>
+        
+        <article class="card shadow">
+            <div class="card-body">
+                <h1 class="card-title text-primary">{{ title }}</h1>
+                <p class="text-muted">ID статьи: {{ news_id }}</p>
+                
+                <div class="content mt-4">
+                    <p>{{ content }}</p>
+                    
+                    <p>Дополнительная информация о статье...</p>
+                    <p>Здесь может быть полный текст новости, изображения и другие материалы.</p>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="/" class="btn btn-primary">На главную</a>
+                    <a href="/works/" class="btn btn-outline-secondary">Мои работы</a>
+                </div>
+            </div>
+        </article>
+    </div>
+</div>
+{% endblock %}

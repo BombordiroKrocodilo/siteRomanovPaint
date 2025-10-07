@@ -1,0 +1,163 @@
+{% extends 'my_siteApp/base.html' %}
+{% load static %}
+
+{% block title %}
+RomanovPaint
+{% endblock %}
+
+{% block content %}
+<div class="row align-items-start mb-5" justify-content-center>
+    <div class="col-md-8">
+        <div class="text-container" style="max-width: 600px; margin-left: 40px;" >
+            <h1><b>RomanovPaint</b></h1>
+            <p>
+                Привет, меня зовут <i>Романов Ярослав</i> и я студент 2 курса системного программирования.        
+            </p>
+            <p>
+                Занимаюсь спортом, играю в компьютерные игры. В будущем собираюсь стать классным программистом и получать много денег.        
+            </p>
+            <p>
+                Для этого мне нужно:
+            </p>
+            <ul>
+                <li>Хорошо учиться</li>
+                <li>Пройти этот курс</li>
+                <li>Получить диплом</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="col-md-4 text-center">
+        <img src="{% static 'images/photo_2025-01-15_08-38-26.jpg' %}" 
+            width="400" 
+            height="400" 
+            class="rounded"
+            alt="Романов Ярослав">
+    </div>
+</div>
+
+<div class="row align-items-start mb-5">
+    <div class="col-md-4 text-center">
+        <img src="{% static 'images/my_photo.jpg' %}" 
+            width="400" 
+            height="400" 
+            class="rounded">
+    </div>
+    
+    <div class="col-md-8">
+        <div class="text-container" style="max-width: 600px; margin-left: 150px; margin-top: 50px;" >
+            <h2><b>Мои увлечения и контакты</b></h2>
+            <p>
+                Также я увлекаюсь вселенной Warhammer 40000. 
+                Она представляет научно-фантастическую серию книг базирующуюся на настольной игре.        
+            </p>
+            <p>
+                Люблю изучать новые технологии, участвовать в IT-мероприятиях и работать над интересными проектами.        
+            </p>
+            <p>
+                По этой вселенной выпущено множество миниатюр, которые я собираю и крашу. А моей оснновной фракцией являются Ультрамарины.
+            </p>
+            
+            <div class="mt-4">
+                <h5>Мои социальные сети:</h5>
+                <div class="social-buttons">
+                    <a href="https://t.me/Yarrek0_0" target="_blank" class="btn btn-telegram me-2 mb-2">
+                        <i class="fab fa-telegram fa-lg"></i> Telegram
+                    </a>
+                    <a href="https://vk.com/id509874229" target="_blank" class="btn btn-vk mb-2">
+                        <i class="fab fa-vk fa-lg"></i> ВКонтакте
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-telegram {
+        background-color: #0088cc;
+        color: white;
+        border: none;
+    }
+    
+    .btn-telegram:hover {
+        background-color: #0077b5;
+        color: white;
+    }
+    
+    .btn-vk {
+        background-color: #4c75a3;
+        color: white;
+        border: none;
+    }
+    
+    .btn-vk:hover {
+        background-color: #3b5998;
+        color: white;
+    }
+    
+    .social-buttons .btn {
+        padding: 10px 20px;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+    
+    .social-buttons .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    @media (max-width: 768px) {
+        .row {
+            margin-bottom: 2rem !important;
+        }
+        
+        .col-md-8, .col-md-4 {
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+        
+        .text-container {
+            max-width: 100% !important;
+            padding: 0 10px;
+        }
+        
+        img {
+            width: 250px !important;
+            height: 250px !important;
+        }
+        
+        .social-buttons .btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            margin-right: 0 !important;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        p, ul {
+            text-align: justify;
+        }
+    }
+
+    @media (max-width: 576px) {
+        img {
+            width: 200px !important;
+            height: 200px !important;
+        }
+        
+        .social-buttons .btn {
+            padding: 12px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}

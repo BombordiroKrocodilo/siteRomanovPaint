@@ -1,0 +1,114 @@
+{% extends 'my_siteApp/base.html' %}
+{% load static %}
+
+{% block title %}
+Мои работы - RomanovPaint
+{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-4"><b>Мои работы</b></h1>
+
+<div class="container">
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6 text-center">
+            <img src="{% static 'images/ultra1.1.jpg' %}" 
+                width="400" 
+                height="500" 
+                class="rounded img-fluid"
+                alt="Работа 1">
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="{% static 'images/ultra1.2.jpg' %}" 
+                width="400" 
+                height="500" 
+                class="rounded img-fluid"
+                alt="Работа 1">
+        </div>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6 text-center">
+            <img src="{% static 'images/ultra2.1.jpg' %}" 
+                width="400" 
+                height="500" 
+                class="rounded img-fluid"
+                alt="Работа 2">
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="{% static 'images/ultra2.2.jpg' %}" 
+                width="400" 
+                height="500" 
+                class="rounded img-fluid"
+                alt="Работа 2">
+        </div>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6 text-center">
+            <img src="{% static 'images/predator1.jpg' %}" 
+                width="400" 
+                height="500" 
+                class="rounded img-fluid"
+                alt="Работа 3">
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="{% static 'images/predator2.jpg' %}" 
+                width="400" 
+                height="500" 
+                class="rounded img-fluid"
+                alt="Работа 3">
+        </div>
+    </div>
+</div>
+
+<style>
+    .img-fluid {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .rounded {
+        border: 3px solid #1976d2;
+        transition: transform 0.3s ease;
+    }
+    
+    .rounded:hover {
+        transform: scale(1.05);
+    }
+    @media (max-width: 768px) {
+        .col-md-6 {
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+        
+        img {
+            width: 300px !important;
+            height: 300px !important;
+            max-width: 100%;
+        }
+        
+        .row {
+            margin-bottom: 1rem !important;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+        }
+        
+        .container {
+            padding: 0 15px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        img {
+            width: 250px !important;
+            height: 250px !important;
+        }
+        
+        .rounded {
+            border-width: 2px;
+        }
+    }
+</style>
+{% endblock %}

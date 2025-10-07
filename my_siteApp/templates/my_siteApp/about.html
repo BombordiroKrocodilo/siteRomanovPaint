@@ -1,0 +1,81 @@
+{% extends 'my_siteApp/base.html' %}
+
+{% block title %}
+RomanovPaint
+{% endblock %}
+
+{% block content %}
+<h1><b>О нас</b></h1>
+
+<div class="pricing-header p-3 pb-md-4 mx-auto text-center"> 
+    <h1 class="display-4 fw-normal text-body-emphasis">Прайс лист</h1>
+    <p class="fs-5 text-body-secondary">
+        Я предоставляю услуги покраса миниатюр.
+    </p> 
+    <p class="fs-5 text-body-secondary">
+        Крашу как поштучные модели так и целые отряды.
+        Работаю на дому во Владивостоке, поэтому доставка за мой счет.
+    </p> 
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 mb-3 text-center"> 
+    <div class="col"> 
+        <div class="card mb-4 rounded-3 shadow-sm"> 
+            <div class="card-header py-3"> 
+                <h4 class="my-0 fw-normal">1 миниатюра</h4> 
+            </div> <div class="card-body"> 
+                <h1 class="card-title pricing-card-title">500 р</h1> 
+                <ul class="list-unstyled mt-3 mb-4"> 
+                    <li>Покрас одной миниатюры</li> 
+                    <li>Доставка</li> 
+                    <li>Фотоотчет</li>
+                    <li>Битсы в подарок</li>
+                </ul> 
+                <button type="button" class="w-100 btn btn-lg btn-outline-primary">
+                    Ваша первая миниатюра
+                </button> 
+            </div> 
+        </div> 
+    </div> 
+    <div class="col"> 
+        <div class="card mb-4 rounded-3 shadow-sm"> 
+            <div class="card-header py-3"> 
+                <h4 class="my-0 fw-normal">5 миниатюр</h4> 
+            </div> 
+            <div class="card-body"> 
+                <h1 class="card-title pricing-card-title">1500 р</h1> 
+                <ul class="list-unstyled mt-3 mb-4"> 
+                    <li>Покрас пяти миниатюр</li> 
+                    <li>Пять миниатюр по цене трех</li> 
+                    <li>Фотоотчет</li>
+                    <li>Ускоренный срок выполнения заказа</li>
+                    
+                </ul> 
+                <button type="button" class="w-100 btn btn-lg btn-primary">
+                    Ваш первый отряд
+                </button> 
+            </div> 
+        </div> 
+    </div> 
+    <div class="col"> 
+        <div class="card mb-4 rounded-3 shadow-sm border-primary"> 
+            <div class="card-header py-3 text-bg-primary border-primary"> 
+                <h4 class="my-0 fw-normal">10 миниатюр</h4> 
+            </div> 
+            <div class="card-body"> 
+                <h1 class="card-title pricing-card-title">5000 р
+                </h1> 
+                <ul class="list-unstyled mt-3 mb-4"> 
+                    <li>Покрас 10 миниатюр</li> 
+                    <li>Десять миниатюр по цене пяти</li> 
+                    <li>Фотоотчет</li>
+                    <li>Мармеладки в подарок</li> 
+                </ul> 
+                <button type="button" class="w-100 btn btn-lg btn-primary">
+                    Ваша первая армия
+                </button> 
+            </div> 
+        </div> 
+    </div> 
+</div>
+{% endblock %}
