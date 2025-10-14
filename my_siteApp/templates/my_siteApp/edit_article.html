@@ -1,0 +1,35 @@
+{% extends 'my_siteApp/base.html' %}
+
+{% block title %}Редактировать статью - RomanovPaint{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1 class="text-center mb-4">Редактировать статью</h1>
+        
+        <div class="card shadow">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    <button type="submit" class="btn btn-warning w-100">Сохранить изменения</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="{% url 'news_detail' article.id %}" class="btn btn-outline-secondary">Назад к статье</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

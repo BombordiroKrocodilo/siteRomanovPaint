@@ -1,0 +1,52 @@
+{% extends 'my_siteApp/base.html' %}
+
+{% block title %}Регистрация - RomanovPaint{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="text-center mb-4">Регистрация</h2>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Имя пользователя</label>
+                        <input type="text" class="form-control" id="username" name="username" required 
+                            placeholder="Придумайте имя пользователя">
+                        <div class="form-text">Обязательное поле. Только буквы, цифры и @/./+/-/_.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password1" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="password1" name="password1" required 
+                            placeholder="Придумайте пароль">
+                        <div class="form-text">
+                            <ul>
+                                <li>Пароль не должен быть слишком похож на другую вашу личную информацию.</li>
+                                <li>Ваш пароль должен содержать как минимум 8 символов.</li>
+                                <li>Пароль не должен быть слишком простым и распространенным.</li>
+                                <li>Пароль не может состоять только из цифр.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password2" class="form-label">Подтверждение пароля</label>
+                        <input type="password" class="form-control" id="password2" name="password2" required 
+                            placeholder="Повторите пароль">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+                </form>
+                
+                <div class="text-center mt-3">
+                    <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войдите</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

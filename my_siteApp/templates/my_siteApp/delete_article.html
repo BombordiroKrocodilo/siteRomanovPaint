@@ -1,0 +1,23 @@
+{% extends 'my_siteApp/base.html' %}
+
+{% block title %}Удалить статью - RomanovPaint{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body text-center">
+                <h3 class="text-danger mb-4">Удалить статью?</h3>
+                <p>Вы уверены, что хотите удалить статью <strong>"{{ article.title }}"</strong>?</p>
+                <p class="text-muted">Это действие нельзя отменить.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger me-2">Да, удалить</button>
+                    <a href="{% url 'news_detail' article.id %}" class="btn btn-secondary">Отмена</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

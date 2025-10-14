@@ -1,0 +1,83 @@
+{% extends 'my_siteApp/base.html' %}
+{% load static %}
+
+{% block title %}
+{% if current_category %}
+{{ current_category|title }} - Статьи
+{% else %}
+Все статьи
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <!-- Фильтр по категориям -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Категории</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{% url 'articles_list' %}" 
+                       class="list-group-item list-group-item-action {% if not current_category %}active{% endif %}">
+                        Все статьи
+                    </a>
+                    {% for value, label in category_choices %}
+                    <a href="{% url 'articles_by_category' value %}" 
+                       class="list-group-item list-group-item-action {% if current_category == value %}active{% endif %}">
+                        {{ label }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <h1 class="mb-4">
+            {% if current_category %}
+            {{ current_category|title }}
+            {% else %}
+            Все статьи
+            {% endif %}
+        </h1>
+        
+        {% if articles %}
+            {% for article in articles %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">{{ article.title }}</h5>
+                    <p class="card-text">{{ article.text|truncatewords:30 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>{{ article.created_date|date:"d.m.Y H:i" }} | 
+                            <i class="fas fa-user me-1"></i>{{ article.user.username }} |
+                            <i class="fas fa-tag me-1"></i>{{ article.get_category_display }} |
+                            <i class="fas fa-comments me-1"></i>{{ article.comments.count }} комментариев
+                        </small>
+                        <a href="{% url 'news_detail' article.id %}" class="btn btn-primary">
+                            <i class="fas fa-eye me-1"></i>Читать и комментировать
+                        </a>
+                    </div>
+                    {% if user == article.user or user.is_superuser %}
+                    <div class="mt-2">
+                        <a href="{% url 'edit_article' article.id %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit me-1"></i>Редактировать
+                        </a>
+                        <a href="{% url 'delete_article' article.id %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash me-1"></i>Удалить
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>Статьи не найдены.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

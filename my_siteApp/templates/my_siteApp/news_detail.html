@@ -2,37 +2,154 @@
 {% load static %}
 
 {% block title %}
-{{ title }} - RomanovPaint
+{{ article.title }} - RomanovPaint
 {% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-10">
-        <nav aria-label="breadcrumb">
+        <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Главная</a></li>
-                <li class="breadcrumb-item active">Новость {{ news_id }}</li>
+                <li class="breadcrumb-item"><a href="/articles/">Статьи</a></li>
+                <li class="breadcrumb-item active">{{ article.title }}</li>
             </ol>
         </nav>
-        
-        <article class="card shadow">
+
+        <div class="text-center mb-5">
+            <h1 class="display-4">{{ article.title }}</h1>
+            <div class="text-muted">
+                <small>
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    {{ article.created_date|date:"d.m.Y H:i" }}
+                </small>
+                <span class="mx-2">•</span>
+                <small>
+                    <i class="fas fa-user me-1"></i>
+                    {{ article.user.username }}
+                </small>
+                <span class="mx-2">•</span>
+                <small>
+                    <i class="fas fa-tag me-1"></i>
+                    {{ article.get_category_display }}
+                </small>
+            </div>
+        </div>
+
+        <div class="card shadow mb-5">
             <div class="card-body">
-                <h1 class="card-title text-primary">{{ title }}</h1>
-                <p class="text-muted">ID статьи: {{ news_id }}</p>
+                <article class="article-content">
+                    <div class="fs-5 lh-base">
+                        {{ article.text|linebreaks }}
+                    </div>
+                </article>
                 
-                <div class="content mt-4">
-                    <p>{{ content }}</p>
-                    
-                    <p>Дополнительная информация о статье...</p>
-                    <p>Здесь может быть полный текст новости, изображения и другие материалы.</p>
+                {% if user == article.user or user.is_superuser %}
+                <div class="mt-4 pt-3 border-top">
+                    <a href="{% url 'edit_article' article.id %}" class="btn btn-warning me-2">
+                        <i class="fas fa-edit me-1"></i>Редактировать статью
+                    </a>
+                    <a href="{% url 'delete_article' article.id %}" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>Удалить статью
+                    </a>
                 </div>
-                
-                <div class="mt-4">
-                    <a href="/" class="btn btn-primary">На главную</a>
-                    <a href="/works/" class="btn btn-outline-secondary">Мои работы</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-comments me-2"></i>
+                    Комментарии ({{ comments_count }})
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if comments %}
+                    {% for comment in comments %}
+                    <div class="comment mb-4 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <strong class="text-primary">{{ comment.author_name }}</strong>
+                            <small class="text-muted">{{ comment.created_date|date:"d.m.Y H:i" }}</small>
+                        </div>
+                        <p class="mb-0">{{ comment.text|linebreaks }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-comment-slash fa-2x text-muted mb-3"></i>
+                        <p class="text-muted">Пока нет комментариев. Будьте первым!</p>
+                    </div>
+                {% endif %}
+
+                <div class="mt-4 pt-4 border-top">
+                    <h6 class="mb-3">Оставить комментарий</h6>
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ comment_form.author_name.id_for_label }}" class="form-label">
+                                    <i class="fas fa-user me-1"></i>{{ comment_form.author_name.label }}
+                                </label>
+                                {{ comment_form.author_name }}
+                                {% if comment_form.author_name.errors %}
+                                    <div class="text-danger small mt-1">{{ comment_form.author_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ comment_form.text.id_for_label }}" class="form-label">
+                                <i class="fas fa-comment me-1"></i>{{ comment_form.text.label }}
+                            </label>
+                            {{ comment_form.text }}
+                            {% if comment_form.text.errors %}
+                                <div class="text-danger small mt-1">{{ comment_form.text.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane me-1"></i>Отправить комментарий
+                        </button>
+                    </form>
                 </div>
             </div>
-        </article>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/articles/" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Вернуться к списку статей
+            </a>
+        </div>
     </div>
 </div>
+
+<style>
+.article-content {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.article-content p {
+    margin-bottom: 1.5rem;
+}
+
+.comment {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.btn {
+    border-radius: 6px;
+}
+</style>
 {% endblock %}
