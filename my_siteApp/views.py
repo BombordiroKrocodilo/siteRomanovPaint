@@ -3,10 +3,221 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
-from django.contrib.auth.models import User
 from .models import Article, Comment
 from .forms import ArticleForm, CommentForm, FeedbackForm
 from datetime import datetime
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .serializers import ArticleSerializer, CommentSerializer
+
+# эндпоинты 
+@api_view(['GET'])
+def api_articles_list(request):
+    """Список всех статей"""
+    articles = Article.objects.all()
+    serializer = ArticleSerializer(articles, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def api_article_detail(request, id):
+    """Статья по ID"""
+    try:
+        article = Article.objects.get(id=id)
+        serializer = ArticleSerializer(article)
+        return Response(serializer.data)
+    except Article.DoesNotExist:
+        return Response(
+            {'error': 'Статья не найдена'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+# CRUD
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_create_article(request):
+    """Создать статью"""
+    serializer = ArticleSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        # Проверка прав доступа к категории
+        category = serializer.validated_data.get('category', 'news')
+        if not Article.can_user_create_article(request.user, category):
+            return Response(
+                {'error': 'У вас нет прав для создания статей в этой категории!'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        article = serializer.save(user=request.user)
+        return Response(
+            ArticleSerializer(article).data, 
+            status=status.HTTP_201_CREATED
+        )
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def api_update_article(request, id):
+    """Обновить статью"""
+    try:
+        article = Article.objects.get(id=id)
+    except Article.DoesNotExist:
+        return Response(
+            {'error': 'Статья не найдена'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    if article.user != request.user and not request.user.is_superuser:
+        return Response(
+            {'error': 'Вы можете редактировать только свои статьи!'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    serializer = ArticleSerializer(article, data=request.data, partial=False)
+    
+    if serializer.is_valid():
+        if 'category' in serializer.validated_data:
+            new_category = serializer.validated_data['category']
+            if not Article.can_user_create_article(request.user, new_category):
+                return Response(
+                    {'error': 'У вас нет прав для изменения категории на эту!'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        
+        serializer.save()
+        return Response(serializer.data)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def api_delete_article(request, id):
+    """Удалить статью"""
+    try:
+        article = Article.objects.get(id=id)
+    except Article.DoesNotExist:
+        return Response(
+            {'error': 'Статья не найдена'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    if article.user != request.user and not request.user.is_superuser:
+        return Response(
+            {'error': 'Вы можете удалять только свои статьи!'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    article.delete()
+    return Response(
+        {'message': 'Статья успешно удалена'}, 
+        status=status.HTTP_204_NO_CONTENT
+    )
+
+@api_view(['GET'])
+def api_articles_by_category(request, category):
+    """Фильтр по категории"""
+    valid_categories = dict(Article.CATEGORY_CHOICES).keys()
+    if category not in valid_categories:
+        return Response(
+            {'error': 'Неверная категория'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    articles = Article.objects.filter(category=category)
+    serializer = ArticleSerializer(articles, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def api_articles_sorted_by_date(request):
+    """Сортировка по дате"""
+    sort_order = request.GET.get('order', 'desc') 
+    
+    if sort_order == 'asc':
+        articles = Article.objects.all().order_by('created_date')
+    else:
+        articles = Article.objects.all().order_by('-created_date')
+    
+    serializer = ArticleSerializer(articles, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def api_comments_list(request):
+    """Список всех комментариев"""
+    comments = Comment.objects.all()
+    serializer = CommentSerializer(comments, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def api_comment_detail(request, id):
+    """Комментарий по ID"""
+    try:
+        comment = Comment.objects.get(id=id)
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data)
+    except Comment.DoesNotExist:
+        return Response(
+            {'error': 'Комментарий не найден'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+@api_view(['POST'])
+def api_create_comment(request):
+    """Создать комментарий"""
+    serializer = CommentSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        article_id = serializer.validated_data.get('article')
+        if not Article.objects.filter(id=article_id.id).exists():
+            return Response(
+                {'error': 'Статья не найдена'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        comment = serializer.save()
+        return Response(
+            CommentSerializer(comment).data, 
+            status=status.HTTP_201_CREATED
+        )
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+def api_update_comment(request, id):
+    """Обновить комментарий"""
+    try:
+        comment = Comment.objects.get(id=id)
+    except Comment.DoesNotExist:
+        return Response(
+            {'error': 'Комментарий не найден'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    serializer = CommentSerializer(comment, data=request.data, partial=False)
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+def api_delete_comment(request, id):
+    """Удалить комментарий"""
+    try:
+        comment = Comment.objects.get(id=id)
+    except Comment.DoesNotExist:
+        return Response(
+            {'error': 'Комментарий не найден'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    comment.delete()
+    return Response(
+        {'message': 'Комментарий успешно удален'}, 
+        status=status.HTTP_204_NO_CONTENT
+    )
 
 def register(request):
     """Отображение страницы регистрации и обработка формы"""

@@ -22,4 +22,20 @@ urlpatterns = [
     path('create-article-page/', views.create_article_page, name='create_article_page'),
     path('edit-article-page/<int:id>/', views.edit_article_page, name='edit_article_page'),
     path('delete-article-page/<int:id>/', views.delete_article_page, name='delete_article_page'),
+    
+    path('api/articles/', views.api_articles_list, name='api_articles_list'),
+    path('api/articles/<int:id>/', views.api_article_detail, name='api_article_detail'),
+    
+    path('api/articles/create/', views.api_create_article, name='api_create_article'),
+    path('api/articles/<int:id>/update/', views.api_update_article, name='api_update_article'),
+    path('api/articles/<int:id>/delete/', views.api_delete_article, name='api_delete_article'),
+    
+    path('api/articles/category/<str:category>/', views.api_articles_by_category, name='api_articles_by_category'),
+    path('api/articles/sort/date/', views.api_articles_sorted_by_date, name='api_articles_sorted_by_date'),
+    
+    path('api/comment/', views.api_comments_list, name='api_comments_list'),
+    path('api/comment/<int:id>/', views.api_comment_detail, name='api_comment_detail'),
+    path('api/comment/create/', views.api_create_comment, name='api_create_comment'),
+    path('api/comment/<int:id>/update/', views.api_update_comment, name='api_update_comment'),
+    path('api/comment/<int:id>/delete/', views.api_delete_comment, name='api_delete_comment'),
 ]
