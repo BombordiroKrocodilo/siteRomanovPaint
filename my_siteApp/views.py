@@ -5,15 +5,139 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from .models import Article, Comment
 from .forms import ArticleForm, CommentForm, FeedbackForm
+from .serializers import *
 from datetime import datetime
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .serializers import ArticleSerializer, CommentSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.contrib.auth.models import User
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_register(request):
+
+    serializer = RegisterSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        user = serializer.save()
+        
+        # Генерация JWT токенов
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'message': 'Регистрация прошла успешно!',
+            'user': UserSerializer(user).data,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh)
+        }, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_login(request):
+
+    serializer = LoginSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'message': 'Вход выполнен успешно!',
+            'user': UserSerializer(user).data,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh)
+        }, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_logout(request):
+    """
+    Принцип работы JWT выхода:
+    1. Добавление refresh токена в blacklist
+    2. Предотвращение повторного использования токена
+    3. Access токен продолжает работать до истечения срока
+    """
+    try:
+        refresh_token = request.data.get('refresh')
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        
+        return Response({
+            'message': 'Успешный выход из системы'
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            'error': 'Неверный токен'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_token_refresh(request):
+
+    refresh_token = request.data.get('refresh')
+    
+    if not refresh_token:
+        return Response({
+            'error': 'Refresh токен обязателен'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        refresh = RefreshToken(refresh_token)
+        access_token = str(refresh.access_token)
+        
+        return Response({
+            'access': access_token,
+            'refresh': str(refresh)
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            'error': 'Неверный или просроченный refresh токен'
+        }, status=status.HTTP_401_UNAUTHORIZED)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_user_profile(request):
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
+
+def jwt_required(view_func):
+
+    def wrapped_view(request, *args, **kwargs):
+        try:
+            jwt_auth = JWTAuthentication()
+            auth_result = jwt_auth.authenticate(request)
+            
+            if auth_result is not None:
+                user, token = auth_result
+                request.user = user
+                return view_func(request, *args, **kwargs)
+            else:
+                return Response({
+                    'error': 'Требуется аутентификация',
+                    'detail': 'Добавьте заголовок Authorization: Bearer <token>'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            return Response({
+                'error': 'Неверный токен',
+                'detail': str(e)
+            }, status=status.HTTP_401_UNAUTHORIZED)
+    
+    return wrapped_view
+
+
 
 # эндпоинты 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def api_articles_list(request):
     """Список всех статей"""
     articles = Article.objects.all()
@@ -21,6 +145,7 @@ def api_articles_list(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def api_article_detail(request, id):
     """Статья по ID"""
     try:
@@ -41,7 +166,6 @@ def api_create_article(request):
     serializer = ArticleSerializer(data=request.data)
     
     if serializer.is_valid():
-        # Проверка прав доступа к категории
         category = serializer.validated_data.get('category', 'news')
         if not Article.can_user_create_article(request.user, category):
             return Response(
@@ -116,6 +240,7 @@ def api_delete_article(request, id):
     )
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def api_articles_by_category(request, category):
     """Фильтр по категории"""
     valid_categories = dict(Article.CATEGORY_CHOICES).keys()
@@ -130,6 +255,7 @@ def api_articles_by_category(request, category):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def api_articles_sorted_by_date(request):
     """Сортировка по дате"""
     sort_order = request.GET.get('order', 'desc') 
@@ -143,6 +269,7 @@ def api_articles_sorted_by_date(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def api_comments_list(request):
     """Список всех комментариев"""
     comments = Comment.objects.all()
@@ -150,6 +277,7 @@ def api_comments_list(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def api_comment_detail(request, id):
     """Комментарий по ID"""
     try:
@@ -163,6 +291,7 @@ def api_comment_detail(request, id):
         )
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def api_create_comment(request):
     """Создать комментарий"""
     serializer = CommentSerializer(data=request.data)
@@ -184,6 +313,7 @@ def api_create_comment(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def api_update_comment(request, id):
     """Обновить комментарий"""
     try:
@@ -194,6 +324,12 @@ def api_update_comment(request, id):
             status=status.HTTP_404_NOT_FOUND
         )
     
+    if not request.user.is_superuser:
+        return Response(
+            {'error': 'У вас нет прав для редактирования комментариев!'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
     serializer = CommentSerializer(comment, data=request.data, partial=False)
     
     if serializer.is_valid():
@@ -203,6 +339,7 @@ def api_update_comment(request, id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def api_delete_comment(request, id):
     """Удалить комментарий"""
     try:
@@ -213,6 +350,12 @@ def api_delete_comment(request, id):
             status=status.HTTP_404_NOT_FOUND
         )
     
+    if not request.user.is_superuser:
+        return Response(
+            {'error': 'У вас нет прав для удаления комментариев!'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
     comment.delete()
     return Response(
         {'message': 'Комментарий успешно удален'}, 

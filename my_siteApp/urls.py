@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from rest_framework_simplejwt.views import TokenVerifyView
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -23,13 +24,9 @@ urlpatterns = [
     path('edit-article-page/<int:id>/', views.edit_article_page, name='edit_article_page'),
     path('delete-article-page/<int:id>/', views.delete_article_page, name='delete_article_page'),
     
+    # API
     path('api/articles/', views.api_articles_list, name='api_articles_list'),
     path('api/articles/<int:id>/', views.api_article_detail, name='api_article_detail'),
-    
-    path('api/articles/create/', views.api_create_article, name='api_create_article'),
-    path('api/articles/<int:id>/update/', views.api_update_article, name='api_update_article'),
-    path('api/articles/<int:id>/delete/', views.api_delete_article, name='api_delete_article'),
-    
     path('api/articles/category/<str:category>/', views.api_articles_by_category, name='api_articles_by_category'),
     path('api/articles/sort/date/', views.api_articles_sorted_by_date, name='api_articles_sorted_by_date'),
     
@@ -38,4 +35,20 @@ urlpatterns = [
     path('api/comment/create/', views.api_create_comment, name='api_create_comment'),
     path('api/comment/<int:id>/update/', views.api_update_comment, name='api_update_comment'),
     path('api/comment/<int:id>/delete/', views.api_delete_comment, name='api_delete_comment'),
+    
+    # JWT
+    path('api/auth/register/', views.api_register, name='api_register'),
+    path('api/auth/login/', views.api_login, name='api_login'),
+    path('api/auth/logout/', views.api_logout, name='api_logout'),
+    path('api/auth/token/refresh/', views.api_token_refresh, name='api_token_refresh'),
+    path('api/auth/token/verify/', TokenVerifyView.as_view(), name='api_token_verify'),
+    path('api/auth/profile/', views.api_user_profile, name='api_user_profile'),
+    
+    path('api/articles/create/', views.api_create_article, name='api_create_article'),
+    path('api/articles/<int:id>/update/', views.api_update_article, name='api_update_article'),
+    path('api/articles/<int:id>/delete/', views.api_delete_article, name='api_delete_article'),
 ]
+
+#curl -X POST http://localhost:8000/api/auth/register/ ^
+#-H "Content-Type: application/json" ^
+#-d "{\"username\": \"testuser\", \"email\": \"test@example.com\", \"password\": \"testpass123\", \"password_confirm\": \"testpass123\"}"
