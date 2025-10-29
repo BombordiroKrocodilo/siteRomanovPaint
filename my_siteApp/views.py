@@ -59,12 +59,7 @@ def api_login(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def api_logout(request):
-    """
-    Принцип работы JWT выхода:
-    1. Добавление refresh токена в blacklist
-    2. Предотвращение повторного использования токена
-    3. Access токен продолжает работать до истечения срока
-    """
+    
     try:
         refresh_token = request.data.get('refresh')
         if refresh_token:

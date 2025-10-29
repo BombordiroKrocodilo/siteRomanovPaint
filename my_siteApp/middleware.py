@@ -29,7 +29,6 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
         return None
 
     def process_exception(self, request, exception):
-        """Обработка исключений JWT аутентификации"""
         if isinstance(exception, (InvalidToken, AuthenticationFailed)):
             return JsonResponse({
                 'error': 'Неверный или просроченный токен',
